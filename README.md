@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="assets/openlib-crawler-logo-removebg.png" alt="OpenLib Crawler" width="200" />
+</div>
+
 # OpenLib Crawler
 
 Production-ready GitHub crawler and AI-powered enrichment system built for discovering, analyzing, moderating, and syncing open-source applications into [OpenLib](https://www.openlib.online).
