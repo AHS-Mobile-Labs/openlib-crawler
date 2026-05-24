@@ -1,79 +1,234 @@
 # OpenLib Crawler
 
-Production-oriented GitHub open-source app discovery, enrichment, moderation, and sync service for OpenLib. It is built for MX Linux and low-power laptops: Node.js, SQLite, local Ollama AI, small worker batches, low concurrency, and restartable one-shot jobs.
+Production-ready GitHub crawler and AI-powered enrichment system built for discovering, analyzing, moderating, and syncing open-source applications into [OpenLib](https://www.openlib.online).
+
+Designed specifically for low-resource systems like MX Linux laptops, the crawler uses Node.js, SQLite, and local Ollama AI models to process repositories efficiently with minimal RAM and CPU usage.
+
+---
+
+## Features
+
+* GitHub repository discovery and crawling
+* AI-powered metadata enrichment using local LLMs
+* README parsing and screenshot extraction
+* Quality scoring and duplicate detection
+* Moderation workflow before publishing
+* Sync engine for pushing approved apps to OpenLib
+* SQLite-based lightweight architecture
+* Restartable worker-based processing
+* Optimized for low-end hardware
+* PM2 and cron support for automation
+
+---
 
 ## Architecture
 
-GitHub REST API -> crawler -> filters -> README parser -> screenshot extractor -> local AI enrichment -> duplicate detection -> scoring engine -> moderation queue -> sync queue -> OpenLib API.
+```text
+GitHub API
+   ↓
+Crawler Workers
+   ↓
+Repository Filters
+   ↓
+README + Metadata Parser
+   ↓
+Screenshot Extractor
+   ↓
+Local AI Enrichment
+   ↓
+Duplicate Detection
+   ↓
+Quality Scoring
+   ↓
+Moderation Queue
+   ↓
+Sync Queue
+   ↓
+OpenLib API
+```
 
-The crawler database is the source of truth for discovery and moderation. Production OpenLib data is changed only through the sync queue and authenticated OpenLib API calls.
+The crawler database acts as the source of truth.
+OpenLib data is updated only through authenticated sync workers.
+
+---
+
+## Tech Stack
+
+* Node.js
+* SQLite
+* Ollama
+* PM2
+* GitHub REST API
+
+---
 
 ## Project Structure
 
-- `src/config.js` loads low-resource defaults from `.env`.
-- `src/db.js` initializes SQLite, migrates older prototype tables, and enables WAL mode.
-- `src/services/` contains GitHub, README parsing, screenshots, AI, scoring, duplicates, app storage, and OpenLib sync services.
-- `src/workers/` contains one-shot crawl, update, AI, screenshot, and sync workers.
-- `src/server.js` is the moderation backend API.
-- `scripts/setup-db.js` creates or migrates the database.
-- `docs/schema.sql` is the reference schema.
-- `ecosystem.config.js` runs the system with PM2 cron-style worker separation.
+```text
+openlib-crawler/
+├── docs/
+├── logs/
+├── scripts/
+├── src/
+│   ├── services/
+│   ├── workers/
+│   ├── config.js
+│   ├── db.js
+│   └── server.js
+├── data/
+├── crawler.js
+├── updater.js
+├── sync.js
+├── ai.js
+└── ecosystem.config.js
+```
 
-## Setup on MX Linux
+### Important Components
+
+| File / Folder         | Purpose                                                   |
+| --------------------- | --------------------------------------------------------- |
+| `src/config.js`       | Loads environment configuration                           |
+| `src/db.js`           | Initializes SQLite database and WAL mode                  |
+| `src/services/`       | Core services for crawling, AI, parsing, scoring, syncing |
+| `src/workers/`        | One-shot worker jobs                                      |
+| `src/server.js`       | Moderation backend API                                    |
+| `docs/schema.sql`     | Reference database schema                                 |
+| `ecosystem.config.js` | PM2 process configuration                                 |
+
+---
+
+# Installation
+
+## Requirements
+
+* Node.js 18+
+* npm
+* Git
+* Ollama (optional but recommended)
+
+---
+
+## Setup
 
 ```bash
-cp .env.example .env
-npm install
+git clone https://github.com/AHS-Mobile-Labs/openlib-crawler.git && \
+cd openlib-crawler && \
+cp .env.example .env && \
+npm install && \
 npm run setup
+```
+
+---
+
+## Smoke Test
+
+```bash
 npm run smoke
 ```
 
-Install Ollama and pull a small model:
+---
+
+# Ollama Setup
+
+Install Ollama and pull a lightweight model:
 
 ```bash
 ollama pull tinyllama
-# or: ollama pull qwen2.5:0.5b
-# or: ollama pull phi
 ```
 
-For an 8GB dual-core laptop, keep `CRAWLER_CONCURRENCY=2`, `AI_CONCURRENCY=1`, and `TARGET_APPS_PER_RUN=50`.
+Alternative lightweight models:
 
-## Running Jobs
+```bash
+ollama pull qwen2.5:0.5b
+ollama pull phi
+```
+
+Recommended settings for low-end systems:
+
+```env
+CRAWLER_CONCURRENCY=2
+AI_CONCURRENCY=1
+TARGET_APPS_PER_RUN=50
+```
+
+---
+
+# Running Jobs
+
+## Crawl Repositories
 
 ```bash
 npm run crawl -- --limit 50
+```
+
+## Update Existing Apps
+
+```bash
 npm run update
+```
+
+## Run AI Enrichment
+
+```bash
 npm run ai
+```
+
+## Refresh Screenshots
+
+```bash
 npm run screenshots
+```
+
+## Sync Approved Apps
+
+```bash
 npm run sync
+```
+
+## Start Moderation API
+
+```bash
 npm run moderation
 ```
 
-The scheduler is available if you prefer one long-running process:
+---
+
+# Scheduler
+
+Run all jobs automatically:
 
 ```bash
 npm run scheduler
 ```
 
-## PM2
+---
+
+# PM2 Setup
+
+Install PM2:
 
 ```bash
 npm install -g pm2
+```
+
+Start workers:
+
+```bash
 pm2 start ecosystem.config.js
+```
+
+Save configuration:
+
+```bash
 pm2 save
 pm2 startup
 ```
 
-The PM2 config separates workers:
+---
 
-- crawler every 6 hours
-- updater daily at 02:20
-- AI enrichment nightly at 01:40
-- screenshot refresh weekly
-- sync every 30 minutes
-- moderation backend always on
+# Cron Jobs
 
-## Cron Alternative
+Example cron configuration:
 
 ```cron
 0 */6 * * * cd /home/Linox/openlib-crawler && /usr/bin/npm run crawl -- --limit 50
@@ -83,83 +238,159 @@ The PM2 config separates workers:
 */30 * * * * cd /home/Linox/openlib-crawler && /usr/bin/npm run sync
 ```
 
-## Moderation API
+---
 
-Start it:
+# Moderation API
 
-```bash
-npm run moderation
-```
-
-Examples:
+## Get Pending Apps
 
 ```bash
 curl -H "X-API-Key: $MODERATION_API_KEY" \
-  "http://127.0.0.1:3020/api/apps?status=pending&limit=20"
-
-curl -X PUT -H "X-API-Key: $MODERATION_API_KEY" -H "Content-Type: application/json" \
-  -d '{"category":"Developer Tools","tags":["git","developer-tools"]}' \
-  "http://127.0.0.1:3020/api/apps/1"
-
-curl -X POST -H "X-API-Key: $MODERATION_API_KEY" \
-  "http://127.0.0.1:3020/api/apps/1/approve"
-
-curl -X POST -H "X-API-Key: $MODERATION_API_KEY" -H "Content-Type: application/json" \
-  -d '{"reason":"not a user-facing app"}' \
-  "http://127.0.0.1:3020/api/apps/1/reject"
+"http://127.0.0.1:3020/api/apps?status=pending&limit=20"
 ```
 
-## OpenLib Sync API Contract
+## Update App Metadata
 
-The sync worker uses API key auth with both `Authorization: Bearer <key>` and `X-API-Key`.
+```bash
+curl -X PUT \
+-H "X-API-Key: $MODERATION_API_KEY" \
+-H "Content-Type: application/json" \
+-d '{"category":"Developer Tools","tags":["git","developer-tools"]}' \
+"http://127.0.0.1:3020/api/apps/1"
+```
 
-- `POST /apps` creates an approved app.
-- `POST /apps/:id` updates a published app.
-- `POST /apps/:id/delete` deletes or unpublishes a dead app.
+## Approve App
 
-Failed syncs remain in `sync_queue` with exponential retry metadata.
+```bash
+curl -X POST \
+-H "X-API-Key: $MODERATION_API_KEY" \
+"http://127.0.0.1:3020/api/apps/1/approve"
+```
 
-## Quality Rules
+## Reject App
 
-Repos are rejected before expensive work if they are forks, archived, disabled, unlicensed, inactive, below the star threshold, or missing a useful description.
+```bash
+curl -X POST \
+-H "X-API-Key: $MODERATION_API_KEY" \
+-H "Content-Type: application/json" \
+-d '{"reason":"not a user-facing app"}' \
+"http://127.0.0.1:3020/api/apps/1/reject"
+```
 
-Quality score includes stars, recent activity, releases, screenshots, website, verified organization, license, README quality, docs quality, and topic/tag richness. Only apps above `MIN_QUALITY_SCORE` enter moderation.
+---
 
-## Local AI
+# Quality Rules
 
-AI enrichment uses Ollama only. The worker sends compact JSON prompts and falls back to deterministic local enrichment if Ollama is offline. Use tiny models on the target laptop:
+Repositories are rejected before expensive processing if they are:
 
-- `tinyllama`
-- `qwen2.5:0.5b`
-- `phi`
-- small Mistral variants if memory allows
+* Forks
+* Archived
+* Disabled
+* Unlicensed
+* Inactive
+* Below minimum star threshold
+* Missing useful descriptions
 
-If system-wide Ollama install needs a sudo password, this repo can run a project-local Ollama binary:
+Quality scoring considers:
+
+* Stars
+* Activity
+* Releases
+* Screenshots
+* Website availability
+* Organization verification
+* License quality
+* README quality
+* Documentation
+* Topic richness
+
+Only repositories above the configured quality threshold enter moderation.
+
+---
+
+# Local AI Enrichment
+
+OpenLib Crawler uses local Ollama models only.
+
+If Ollama is unavailable, the system falls back to deterministic enrichment logic.
+
+Supported lightweight models:
+
+* tinyllama
+* qwen2.5:0.5b
+* phi
+* lightweight Mistral variants
+
+---
+
+## Project-Local Ollama
+
+Start local Ollama:
 
 ```bash
 npm run ollama:start
+```
+
+Pull models:
+
+```bash
 npm run ollama:pull
+```
+
+Check status:
+
+```bash
 curl http://127.0.0.1:11434/api/tags
+```
+
+Run AI test:
+
+```bash
 npm run ai -- --limit 1
 ```
 
-Project-local files are kept out of git:
-
-- binary bundle: `vendor/ollama`
-- model cache: `data/ollama-models`
-- Ollama log: `logs/ollama.log`
-
-Stop it with:
+Stop Ollama:
 
 ```bash
 npm run ollama:stop
 ```
 
-## Logs and Data
+---
 
-- SQLite: `openlib.db`
-- Main logs: `logs/openlib-crawler.log`
-- PM2 logs: `logs/pm2-*.log`
-- Screenshot cache: `data/cache/screenshots`
+# Logs & Storage
 
-The database runs in WAL mode for better reliability during worker overlap.
+| Resource         | Location                   |
+| ---------------- | -------------------------- |
+| SQLite Database  | `openlib.db`               |
+| Main Logs        | `logs/openlib-crawler.log` |
+| PM2 Logs         | `logs/pm2-*.log`           |
+| Screenshot Cache | `data/cache/screenshots`   |
+| Ollama Models    | `data/ollama-models`       |
+
+SQLite runs in WAL mode for better reliability during concurrent workers.
+
+---
+
+# Goals
+
+OpenLib Crawler aims to:
+
+* Build a scalable open-source app discovery engine
+* Reduce manual app submission work
+* Improve metadata quality using local AI
+* Support privacy-friendly self-hosted infrastructure
+* Run efficiently on low-end hardware
+
+---
+
+# License
+
+MIT License
+
+---
+
+# OpenLib
+
+Discover open-source alternatives and apps on:
+
+[OpenLib Website](https://www.openlib.online)
