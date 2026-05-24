@@ -12,6 +12,10 @@
     "sync": "node src/cli.js sync",
     "scheduler": "node src/cli.js scheduler",
     "moderation": "node src/server.js",
+    "ollama:start": "node scripts/start-ollama.js",
+    "ollama:stop": "node scripts/stop-ollama.js",
+    "ollama:list": "vendor/ollama/bin/ollama list",
+    "ollama:pull": "vendor/ollama/bin/ollama pull tinyllama",
     "smoke": "node scripts/smoke-test.js",
     "test": "npm run smoke"
   },

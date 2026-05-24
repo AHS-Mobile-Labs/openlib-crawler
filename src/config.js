@@ -83,9 +83,11 @@ module.exports = {
     baseUrl: process.env.OLLAMA_BASE_URL || "http://127.0.0.1:11434",
     model: process.env.OLLAMA_MODEL || "tinyllama",
     timeoutMs: numberFromEnv("OLLAMA_TIMEOUT_MS", 120000),
+    numCtx: numberFromEnv("OLLAMA_NUM_CTX", 1024),
+    numPredict: numberFromEnv("OLLAMA_NUM_PREDICT", 180),
     concurrency: numberFromEnv("AI_CONCURRENCY", 1),
     intervalMs: numberFromEnv("AI_INTERVAL_MS", 24 * 60 * 60 * 1000),
-    maxInputChars: numberFromEnv("AI_MAX_INPUT_CHARS", 9000)
+    maxInputChars: numberFromEnv("AI_MAX_INPUT_CHARS", 1200)
   },
 
   sync: {

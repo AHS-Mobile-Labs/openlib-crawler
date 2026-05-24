@@ -55,34 +55,16 @@ function buildPrompt(app) {
   const payload = {
     name: app.name,
     github: app.github_full_name,
-    stars: app.stars,
-    license: app.license,
     language: app.language,
     topics: parseJson(app.topics, []),
-    existing_description: app.short_description,
+    description: app.short_description,
     readme: cleanText(app.readme_text || "", config.ai.maxInputChars)
   };
 
-  return `You enrich app metadata for OpenLib, a catalog of high-quality open-source applications.
-Return compact valid JSON only. No markdown.
-
-Required JSON keys:
-category: short category name
-short_description: one sentence under 160 characters
-full_description: 1-2 clear paragraphs under 900 characters
-uses: what problem the app solves, under 350 characters
-alternative_of: array of comparable proprietary or open-source apps
-tags: 5-12 lowercase tags
-key_features: 4-8 short feature strings
-comparison_table: array of up to 5 objects with keys "feature", "this_app", "alternatives"
-supported_platforms: array
-installation_methods: array
-system_requirements: array
-
-Prefer factual claims grounded in the README. Do not invent pricing or unsupported platforms.
-
-Input:
-${JSON.stringify(payload)}`;
+  return `Return compact JSON only for this open-source app.
+Keys: category, short_description, full_description, uses, alternative_of, tags, key_features.
+Limits: short_description <140 chars, full_description <350 chars, uses <220 chars, tags <=8, key_features <=5.
+Use only facts from input. Input: ${JSON.stringify(payload)}`;
 }
 
 async function callOllama(prompt) {
@@ -92,10 +74,12 @@ async function callOllama(prompt) {
       model: config.ai.model,
       prompt,
       stream: false,
+      format: "json",
+      keep_alive: "10m",
       options: {
         temperature: 0.2,
-        num_ctx: 4096,
-        num_predict: 900
+        num_ctx: config.ai.numCtx,
+        num_predict: config.ai.numPredict
       }
     },
     {
@@ -109,15 +93,19 @@ async function callOllama(prompt) {
 function normalizeEnrichment(app, data) {
   const fallback = fallbackEnrichment(app);
   const source = data && typeof data === "object" ? data : fallback;
+  const aiTags = source.tags || source.topic || source.topics || fallback.tags;
+  const aiFeatures = source.key_features || source.features || source.feature || fallback.key_features;
+  const aiDescription = source.short_description || source.description || source.summary || fallback.short_description;
+  const aiFullDescription = source.full_description || source.long_description || source.description || fallback.full_description;
 
   return {
     category: cleanText(source.category || fallback.category, 80),
-    short_description: cleanText(source.short_description || fallback.short_description, 180),
-    full_description: cleanText(source.full_description || fallback.full_description, 1800),
+    short_description: cleanText(aiDescription, 180),
+    full_description: cleanText(aiFullDescription, 1800),
     uses: cleanText(source.uses || fallback.uses, 350),
     alternative_of: stringifyJson(uniqueArray(source.alternative_of || fallback.alternative_of).slice(0, 8)),
-    tags: stringifyJson(uniqueArray(source.tags || fallback.tags).slice(0, 16)),
-    key_features: stringifyJson(uniqueArray(source.key_features || fallback.key_features).slice(0, 8)),
+    tags: stringifyJson(uniqueArray(aiTags).slice(0, 16)),
+    key_features: stringifyJson(uniqueArray(aiFeatures).slice(0, 8)),
     comparison_table: stringifyJson(Array.isArray(source.comparison_table) ? source.comparison_table.slice(0, 5) : []),
     supported_platforms: stringifyJson(uniqueArray(source.supported_platforms || fallback.supported_platforms).slice(0, 10)),
     installation_methods: stringifyJson(uniqueArray(source.installation_methods || fallback.installation_methods).slice(0, 8)),

@@ -134,6 +134,27 @@ AI enrichment uses Ollama only. The worker sends compact JSON prompts and falls 
 - `phi`
 - small Mistral variants if memory allows
 
+If system-wide Ollama install needs a sudo password, this repo can run a project-local Ollama binary:
+
+```bash
+npm run ollama:start
+npm run ollama:pull
+curl http://127.0.0.1:11434/api/tags
+npm run ai -- --limit 1
+```
+
+Project-local files are kept out of git:
+
+- binary bundle: `vendor/ollama`
+- model cache: `data/ollama-models`
+- Ollama log: `logs/ollama.log`
+
+Stop it with:
+
+```bash
+npm run ollama:stop
+```
+
 ## Logs and Data
 
 - SQLite: `openlib.db`

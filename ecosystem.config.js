@@ -1,6 +1,21 @@
 module.exports = {
   apps: [
     {
+      name: "openlib-ollama",
+      script: "vendor/ollama/bin/ollama",
+      args: "serve",
+      cwd: __dirname,
+      autorestart: true,
+      max_memory_restart: "2500M",
+      out_file: "logs/pm2-ollama.out.log",
+      error_file: "logs/pm2-ollama.err.log",
+      env: {
+        NODE_ENV: "production",
+        OLLAMA_HOST: "127.0.0.1:11434",
+        OLLAMA_MODELS: "data/ollama-models"
+      }
+    },
+    {
       name: "openlib-moderation",
       script: "src/server.js",
       cwd: __dirname,

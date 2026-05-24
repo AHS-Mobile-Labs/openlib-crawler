@@ -24,7 +24,10 @@ pnpm-debug.log*
 # Runtime cache and generated assets
 data/cache/
 data/tmp/
+data/ollama-models/
+data/ollama.pid
 screenshots/
+vendor/ollama/
 
 # PM2 runtime files
 .pm2/
