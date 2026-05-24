@@ -1,0 +1,38 @@
+{
+  "name": "openlib-crawler",
+  "version": "1.0.0",
+  "description": "Low-resource GitHub open-source app crawler and OpenLib sync service.",
+  "main": "src/cli.js",
+  "scripts": {
+    "setup": "node scripts/setup-db.js",
+    "crawl": "node src/cli.js crawl",
+    "update": "node src/cli.js update",
+    "ai": "node src/cli.js ai",
+    "screenshots": "node src/cli.js screenshots",
+    "sync": "node src/cli.js sync",
+    "scheduler": "node src/cli.js scheduler",
+    "moderation": "node src/server.js",
+    "smoke": "node scripts/smoke-test.js",
+    "test": "npm run smoke"
+  },
+  "keywords": [
+    "openlib",
+    "crawler",
+    "github",
+    "sqlite",
+    "ollama"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@octokit/rest": "^22.0.1",
+    "axios": "^1.16.1",
+    "cheerio": "^1.2.0",
+    "dotenv": "^17.4.2",
+    "node-fetch": "^3.3.2",
+    "remove-markdown": "^0.6.4",
+    "sharp": "^0.34.5",
+    "slugify": "^1.6.9",
+    "sqlite3": "^6.0.1"
+  }
+}

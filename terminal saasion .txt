@@ -1,0 +1,624 @@
+Linox@Linox:~
+$ sudo apt update && sudo apt install nodejs npm sqlite3 git
+[sudo] password for Linox:          
+Hit:1 http://deb.debian.org/debian trixie InRelease
+Get:2 http://deb.debian.org/debian trixie-updates InRelease [47.3 kB]                              
+Hit:3 https://brave-browser-apt-release.s3.brave.com stable InRelease                              
+Get:4 https://dl.google.com/linux/chrome/deb stable InRelease [1,825 B]                            
+Get:5 http://security.debian.org/debian-security trixie-security InRelease [43.4 kB]               
+Hit:6 https://packages.microsoft.com/repos/code stable InRelease                                   
+Get:7 http://security.debian.org/debian-security trixie-security/main amd64 Packages [171 kB]      
+Get:8 http://security.debian.org/debian-security trixie-security/main i386 Packages [159 kB]       
+Get:9 http://security.debian.org/debian-security trixie-security/main Translation-en [108 kB]      
+Hit:10 https://repo.protonvpn.com/debian stable InRelease                                          
+Get:11 https://dl.google.com/linux/chrome-stable/deb stable InRelease [1,825 B]  
+Get:12 https://dl.google.com/linux/chrome/deb stable/main amd64 Packages [1,220 B]             
+Get:13 https://dl.google.com/linux/chrome-stable/deb stable/main amd64 Packages [1,220 B]    
+Get:14 https://mirror.kku.ac.th/mx-packages/mx/repo trixie InRelease [25.6 kB]  
+Get:15 https://mirror.kku.ac.th/mx-packages/mx/repo trixie/main amd64 Packages [246 kB]
+Get:16 https://mirror.kku.ac.th/mx-packages/mx/repo trixie/main i386 Packages [235 kB]
+Fetched 1,042 kB in 3s (376 kB/s)  
+19 packages can be upgraded. Run 'apt list --upgradable' to see them.
+Notice: Skipping acquire of configured file 'main/binary-i386/Packages' as repository 'https://dl.google.com/linux/chrome-stable/deb stable InRelease' doesn't support architecture 'i386'
+nodejs is already the newest version (20.19.2+dfsg-1+deb13u2).
+nodejs set to manually installed.
+npm is already the newest version (9.2.0~ds1-3).
+sqlite3 is already the newest version (3.46.1-7+deb13u1).
+sqlite3 set to manually installed.
+git is already the newest version (1:2.47.3-0+deb13u1).
+The following packages were automatically installed and are no longer required:
+  linux-headers-6.12.85+deb13-amd64   linux-image-6.12.85+deb13-amd64
+  linux-headers-6.12.85+deb13-common  linux-kbuild-6.12.85+deb13
+Use 'sudo apt autoremove' to remove them.
+
+Summary:
+  Upgrading: 0, Installing: 0, Removing: 0, Not Upgrading: 19
+Linox@Linox:~
+$ node -v && npm -v
+v20.19.2
+9.2.0
+Linox@Linox:~
+$ mkdir ~/openlib-crawler && cd ~/openlib-crawler
+Linox@Linox:~/openlib-crawler
+$ npm init -y
+Wrote to /home/Linox/openlib-crawler/package.json:
+
+{
+  "name": "openlib-crawler",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
+
+
+Linox@Linox:~/openlib-crawler
+$ npm install @octokit/rest axios cheerio sqlite3 dotenv sharp remove-markdown
+npm WARN deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+npm WARN deprecated prebuild-install@7.1.3: No longer maintained. Please contact the author of the relevant native addon; alternatives are available.
+
+added 133 packages, and audited 134 packages in 27s
+
+42 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+Linox@Linox:~/openlib-crawler
+$ public_repo
+public_repo: command not found
+Linox@Linox:~/openlib-crawler
+$ nano .env
+Linox@Linox:~/openlib-crawler
+$ sqlite3 openlib.db
+SQLite version 3.46.1 2024-08-13 09:16:08
+Enter ".help" for usage hints.
+sqlite> CREATE TABLE apps (
+  id INTEGER PRIMARY KEY,
+  github_url TEXT UNIQUE,
+  name TEXT,
+  description TEXT,
+  category TEXT,
+  stars INTEGER,
+  license TEXT,
+  website TEXT,
+  logo TEXT,
+  screenshots TEXT,
+  score INTEGER,
+  status TEXT,
+  last_updated TEXT
+);
+sqlite> .quit
+Linox@Linox:~/openlib-crawler
+$ nano .env
+Linox@Linox:~/openlib-crawler
+$ nano test.js
+Linox@Linox:~/openlib-crawler
+$ node test.js
+◇ injected env (1) from .env // tip: ⌘ suppress logs { quiet: true }
+koala73/worldmonitor
+serhii-londar/open-source-mac-os-apps
+usebruno/bruno
+nextcloud/server
+chatwoot/chatwoot
+Linox@Linox:~/openlib-crawler
+$ nano crawler.js
+Linox@Linox:~/openlib-crawler
+$ node crawler.js
+◇ injected env (1) from .env // tip: ⌘ suppress logs { quiet: true }
+\nSearching: topic:opensource stars:>100 archived:false
+Added: koala73/worldmonitor | Stars: 54849 | Score: 120
+Added: serhii-londar/open-source-mac-os-apps | Stars: 48729 | Score: 110
+Added: usebruno/bruno | Stars: 44415 | Score: 120
+Added: nextcloud/server | Stars: 35485 | Score: 120
+Added: chatwoot/chatwoot | Stars: 29688 | Score: 120
+Added: ente-io/ente | Stars: 26696 | Score: 120
+Added: Fincept-Corporation/FinceptTerminal | Stars: 23424 | Score: 120
+Added: krayin/laravel-crm | Stars: 22577 | Score: 120
+Added: Atlas-OS/Atlas | Stars: 20679 | Score: 120
+Added: docmost/docmost | Stars: 20345 | Score: 120
+Added: uvdesk/community-skeleton | Stars: 18681 | Score: 120
+Added: suitenumerique/docs | Stars: 16531 | Score: 120
+Added: zaproxy/zaproxy | Stars: 15168 | Score: 120
+Added: streetwriters/notesnook | Stars: 14077 | Score: 120
+Added: The-Cool-Coders/Project-Ideas-And-Resources | Stars: 14047 | Score: 110
+Added: nanobrowser/nanobrowser | Stars: 13042 | Score: 120
+Added: provectus/kafka-ui | Stars: 12110 | Score: 110
+Added: ubicloud/ubicloud | Stars: 12066 | Score: 120
+Added: cdnjs/cdnjs | Stars: 10705 | Score: 120
+Added: offa/android-foss | Stars: 10167 | Score: 120
+Added: xuchengsheng/spring-reading | Stars: 9921 | Score: 120
+Added: unopim/unopim | Stars: 9916 | Score: 120
+Added: pterodactyl/panel | Stars: 8899 | Score: 120
+\nSearching: topic:android stars:>100 archived:false
+Added: flutter/flutter | Stars: 176446 | Score: 120
+Added: Genymobile/scrcpy | Stars: 142304 | Score: 110
+Added: facebook/react-native | Stars: 125893 | Score: 120
+Added: justjavac/free-programming-books-zh_CN | Stars: 116991 | Score: 120
+Added: rustdesk/rustdesk | Stars: 114852 | Score: 120
+Added: Hack-with-Github/Awesome-Hacking | Stars: 112988 | Score: 110
+Added: tldr-pages/tldr | Stars: 62669 | Score: 120
+Added: 2dust/v2rayNG | Stars: 56725 | Score: 120
+Added: wasabeef/awesome-android-ui | Stars: 56211 | Score: 110
+Added: appwrite/appwrite | Stars: 56140 | Score: 120
+Added: termux/termux-app | Stars: 55407 | Score: 120
+Added: laurent22/joplin | Stars: 54943 | Score: 120
+Added: google/material-design-icons | Stars: 53333 | Score: 120
+Added: expo/expo | Stars: 49632 | Score: 120
+Added: skylot/jadx | Stars: 48687 | Score: 110
+Added: square/okhttp | Stars: 46977 | Score: 120
+Added: KRTirtho/spotube | Stars: 46509 | Score: 120
+Added: android/architecture-samples | Stars: 45702 | Score: 110
+Added: square/retrofit | Stars: 43905 | Score: 120
+Added: fastlane/fastlane | Stars: 41565 | Score: 120
+Added: dcloudio/uni-app | Stars: 41531 | Score: 120
+Added: gkd-kit/gkd | Stars: 38861 | Score: 120
+Added: sxyazi/yazi | Stars: 38425 | Score: 120
+Added: TeamNewPipe/NewPipe | Stars: 38315 | Score: 120
+\nSearching: topic:linux-app stars:>100 archived:false
+Added: BeyondDimension/SteamTools | Stars: 25577 | Score: 120
+Added: beekeeper-studio/beekeeper-studio | Stars: 22854 | Score: 120
+Added: yorukot/superfile | Stars: 17369 | Score: 120
+Added: moonlight-stream/moonlight-qt | Stars: 17258 | Score: 110
+Added: winapps-org/winapps | Stars: 15105 | Score: 110
+Added: electerm/electerm | Stars: 14157 | Score: 120
+Added: d2phap/ImageGlass | Stars: 13207 | Score: 120
+Added: aandrew-me/ytDownloader | Stars: 9603 | Score: 120
+Added: AppImage/AppImageKit | Stars: 9339 | Score: 120
+Added: GetPublii/Publii | Stars: 7190 | Score: 120
+Added: meowtec/Imagine | Stars: 4359 | Score: 110
+Added: TomBadash/Mouser | Stars: 3989 | Score: 110
+Added: xiaowenxia/embedded-notes | Stars: 3919 | Score: 110
+Added: Taiko2k/Tauon | Stars: 2649 | Score: 120
+Added: antares-sql/antares | Stars: 2614 | Score: 120
+Added: TheTumultuousUnicornOfDarkness/CPU-X | Stars: 2596 | Score: 120
+Added: drl990114/MarkFlowy | Stars: 2300 | Score: 120
+Added: puneetsl/lotion | Stars: 2190 | Score: 110
+Added: ransome1/sleek | Stars: 1970 | Score: 120
+Added: DeaDBeeF-Player/deadbeef | Stars: 1918 | Score: 120
+Added: intika/Librefox | Stars: 1772 | Score: 120
+Added: RajSolai/TextSnatcher | Stars: 1379 | Score: 120
+Added: Beaver-Notes/Beaver-Notes | Stars: 1263 | Score: 120
+Added: aethereans/aether-app | Stars: 1251 | Score: 120
+\nSearching: topic:electron stars:>100 archived:false
+Added: microsoft/vscode | Stars: 185304 | Score: 120
+Added: electron/electron | Stars: 121402 | Score: 120
+Added: microsoft/playwright | Stars: 89330 | Score: 120
+Added: toeverything/AFFiNE | Stars: 68693 | Score: 120
+Added: marktext/marktext | Stars: 56401 | Score: 120
+Added: laurent22/joplin | Stars: 54943 | Score: 120
+Added: agalwood/Motrix | Stars: 51776 | Score: 120
+Added: lyswhut/lx-music-desktop | Stars: 51179 | Score: 120
+Added: upscayl/upscayl | Stars: 45507 | Score: 120
+Added: siyuan-note/siyuan | Stars: 44099 | Score: 120
+Added: siddharthvaddem/openscreen | Stars: 37055 | Score: 120
+Added: TriliumNext/Trilium | Stars: 36194 | Score: 120
+Added: qier222/YesPlayMusic | Stars: 32884 | Score: 120
+Added: pear-devs/pear-desktop | Stars: 31765 | Score: 110
+Added: sindresorhus/awesome-electron | Stars: 27158 | Score: 110
+Added: quasarframework/quasar | Stars: 27151 | Score: 120
+Added: Molunerfinn/PicGo | Stars: 26740 | Score: 120
+Added: oldj/SwitchHosts | Stars: 26676 | Score: 120
+Added: zulip/zulip | Stars: 25266 | Score: 120
+Added: responsively-org/responsively-app | Stars: 24941 | Score: 120
+Added: nylas/nylas-mail | Stars: 24753 | Score: 120
+Added: electron-react-boilerplate/electron-react-boilerplate | Stars: 24247 | Score: 120
+Added: mihomo-party-org/clash-party | Stars: 24030 | Score: 120
+Added: beekeeper-studio/beekeeper-studio | Stars: 22854 | Score: 120
+\nDone crawling.
+Linox@Linox:~/openlib-crawler
+$ ^C
+Linox@Linox:~/openlib-crawler
+$ mkdir data logs screenshots workers
+Linox@Linox:~/openlib-crawler
+$ touch crawler.js updater.js sync.js ai.js
+Linox@Linox:~/openlib-crawler
+$ sqlite3 openlib.db
+SQLite version 3.46.1 2024-08-13 09:16:08
+Enter ".help" for usage hints.
+sqlite> DROP TABLE apps;
+sqlite> CREATE TABLE apps (
+  id INTEGER PRIMARY KEY,
+
+  github_id INTEGER UNIQUE,
+  github_url TEXT UNIQUE,
+
+  name TEXT,
+  slug TEXT,
+
+  short_description TEXT,
+  full_description TEXT,
+
+  category TEXT,
+
+  stars INTEGER,
+  forks INTEGER,
+
+  license TEXT,
+
+  website TEXT,
+
+  logo TEXT,
+
+  screenshots TEXT,
+
+);updated_at TEXT,
+sqlite> CREATE TABLE sync_queue (
+  id INTEGER PRIMARY KEY,
+  app_id INTEGER,
+  action TEXT,
+  synced INTEGER DEFAULT 0
+);
+sqlite> .quit
+Linox@Linox:~/openlib-crawler
+$ npm install slugify node-fetch
+npm WARN deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+
+added 7 packages, and audited 141 packages in 2s
+
+45 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+Linox@Linox:~/openlib-crawler
+$ nano crawler.js
+Linox@Linox:~/openlib-crawler
+$ node crawler.js
+◇ injected env (1) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+\nSearching: topic:opensource stars:>100 archived:false
+Added: koala73/worldmonitor | Score: 120
+Added: serhii-londar/open-source-mac-os-apps | Score: 110
+Added: usebruno/bruno | Score: 120
+Added: nextcloud/server | Score: 120
+Added: chatwoot/chatwoot | Score: 120
+Added: ente-io/ente | Score: 120
+Added: Fincept-Corporation/FinceptTerminal | Score: 120
+Added: krayin/laravel-crm | Score: 120
+Added: Atlas-OS/Atlas | Score: 120
+Added: docmost/docmost | Score: 120
+Added: uvdesk/community-skeleton | Score: 120
+Added: suitenumerique/docs | Score: 120
+Added: zaproxy/zaproxy | Score: 120
+Added: streetwriters/notesnook | Score: 120
+Added: The-Cool-Coders/Project-Ideas-And-Resources | Score: 110
+Added: nanobrowser/nanobrowser | Score: 120
+Added: provectus/kafka-ui | Score: 110
+Added: ubicloud/ubicloud | Score: 120
+Added: cdnjs/cdnjs | Score: 120
+Added: offa/android-foss | Score: 120
+Added: xuchengsheng/spring-reading | Score: 120
+Added: unopim/unopim | Score: 120
+Added: pterodactyl/panel | Score: 120
+\nSearching: topic:android stars:>100 archived:false
+Added: flutter/flutter | Score: 120
+Added: Genymobile/scrcpy | Score: 110
+Added: facebook/react-native | Score: 120
+Added: justjavac/free-programming-books-zh_CN | Score: 120
+Added: rustdesk/rustdesk | Score: 120
+Added: Hack-with-Github/Awesome-Hacking | Score: 110
+Added: tldr-pages/tldr | Score: 120
+Added: 2dust/v2rayNG | Score: 120
+Added: wasabeef/awesome-android-ui | Score: 110
+Added: appwrite/appwrite | Score: 120
+Added: termux/termux-app | Score: 120
+Added: laurent22/joplin | Score: 120
+Added: google/material-design-icons | Score: 120
+Added: expo/expo | Score: 120
+Added: skylot/jadx | Score: 110
+Added: square/okhttp | Score: 120
+Added: KRTirtho/spotube | Score: 120
+Added: android/architecture-samples | Score: 110
+Added: square/retrofit | Score: 120
+Added: fastlane/fastlane | Score: 120
+Added: dcloudio/uni-app | Score: 120
+Added: gkd-kit/gkd | Score: 120
+Added: sxyazi/yazi | Score: 120
+Added: TeamNewPipe/NewPipe | Score: 120
+\nSearching: topic:linux-app stars:>100 archived:false
+Added: BeyondDimension/SteamTools | Score: 120
+Added: beekeeper-studio/beekeeper-studio | Score: 120
+Added: yorukot/superfile | Score: 120
+Added: moonlight-stream/moonlight-qt | Score: 110
+Added: winapps-org/winapps | Score: 110
+Added: electerm/electerm | Score: 120
+Added: d2phap/ImageGlass | Score: 120
+Added: aandrew-me/ytDownloader | Score: 120
+Added: AppImage/AppImageKit | Score: 120
+Added: GetPublii/Publii | Score: 120
+Added: meowtec/Imagine | Score: 110
+Added: TomBadash/Mouser | Score: 110
+Added: xiaowenxia/embedded-notes | Score: 110
+Added: Taiko2k/Tauon | Score: 120
+Added: antares-sql/antares | Score: 120
+Added: TheTumultuousUnicornOfDarkness/CPU-X | Score: 120
+Added: drl990114/MarkFlowy | Score: 120
+Added: puneetsl/lotion | Score: 110
+Added: ransome1/sleek | Score: 120
+Added: DeaDBeeF-Player/deadbeef | Score: 120
+Added: intika/Librefox | Score: 120
+Added: RajSolai/TextSnatcher | Score: 120
+Added: Beaver-Notes/Beaver-Notes | Score: 120
+Added: aethereans/aether-app | Score: 120
+\nSearching: topic:electron stars:>100 archived:false
+Added: microsoft/vscode | Score: 120
+Added: electron/electron | Score: 120
+Added: microsoft/playwright | Score: 120
+Added: toeverything/AFFiNE | Score: 120
+Added: marktext/marktext | Score: 120
+Added: laurent22/joplin | Score: 120
+Added: agalwood/Motrix | Score: 120
+Added: lyswhut/lx-music-desktop | Score: 120
+Added: upscayl/upscayl | Score: 120
+Added: siyuan-note/siyuan | Score: 120
+Added: siddharthvaddem/openscreen | Score: 120
+Added: TriliumNext/Trilium | Score: 120
+Added: qier222/YesPlayMusic | Score: 120
+Added: pear-devs/pear-desktop | Score: 110
+Added: sindresorhus/awesome-electron | Score: 110
+Added: quasarframework/quasar | Score: 120
+Added: Molunerfinn/PicGo | Score: 120
+Added: oldj/SwitchHosts | Score: 120
+Added: zulip/zulip | Score: 120
+Added: responsively-org/responsively-app | Score: 120
+Added: nylas/nylas-mail | Score: 120
+Added: electron-react-boilerplate/electron-react-boilerplate | Score: 120
+Added: mihomo-party-org/clash-party | Score: 120
+Added: beekeeper-studio/beekeeper-studio | Score: 120
+\nDone.
+Linox@Linox:~/openlib-crawler
+$ sqlite3 openlib.db
+SQLite version 3.46.1 2024-08-13 09:16:08
+Enter ".help" for usage hints.
+sqlite> SELECT name, stars, score FROM apps LIMIT 20;
+worldmonitor|54849|120
+open-source-mac-os-apps|48729|110
+bruno|44415|120
+FinceptTerminal|23427|120
+laravel-crm|22576|120
+Atlas|20679|120
+docmost|20345|120
+community-skeleton|18680|120
+docs|16531|120
+zaproxy|15168|120
+notesnook|14077|120
+Project-Ideas-And-Resources|14047|110
+nanobrowser|13042|120
+ente|26696|120
+ubicloud|12066|120
+cdnjs|10705|120
+android-foss|10167|120
+spring-reading|9921|120
+unopim|9916|120
+panel|8899|120
+sqlite> .quit
+Linox@Linox:~/openlib-crawler
+$ nano updater.js
+Linox@Linox:~/openlib-crawler
+$ node updater.js
+◇ injected env (1) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+Updated: worldmonitor
+Updated: open-source-mac-os-apps
+Updated: bruno
+Updated: FinceptTerminal
+Updated: laravel-crm
+Updated: Atlas
+Updated: docmost
+Updated: community-skeleton
+Updated: docs
+Updated: zaproxy
+Updated: notesnook
+Updated: Project-Ideas-And-Resources
+Updated: nanobrowser
+Updated: ente
+Updated: ubicloud
+Updated: cdnjs
+Updated: android-foss
+Updated: spring-reading
+Updated: unopim
+Updated: panel
+Updated: kafka-ui
+Updated: server
+Updated: chatwoot
+Updated: flutter
+Updated: rustdesk
+Updated: Awesome-Hacking
+Updated: tldr
+Updated: v2rayNG
+Updated: awesome-android-ui
+Updated: appwrite
+Updated: termux-app
+Updated: joplin
+Updated: material-design-icons
+Updated: expo
+Updated: jadx
+Updated: okhttp
+Updated: spotube
+Updated: architecture-samples
+Updated: retrofit
+Updated: fastlane
+Updated: uni-app
+Updated: gkd
+Updated: yazi
+Updated: NewPipe
+Updated: scrcpy
+Updated: free-programming-books-zh_CN
+Updated: react-native
+Updated: SteamTools
+Updated: winapps
+Updated: electerm
+Updated: ImageGlass
+Updated: ytDownloader
+Updated: AppImageKit
+Updated: Publii
+Updated: Imagine
+Updated: Mouser
+Updated: embedded-notes
+Updated: Tauon
+Updated: antares
+Updated: CPU-X
+Updated: MarkFlowy
+Updated: lotion
+Updated: sleek
+Updated: deadbeef
+Updated: Librefox
+Updated: TextSnatcher
+Updated: Beaver-Notes
+Updated: aether-app
+Updated: superfile
+Updated: moonlight-qt
+Updated: beekeeper-studio
+Updated: vscode
+Updated: marktext
+Updated: Motrix
+Updated: lx-music-desktop
+Updated: upscayl
+Updated: siyuan
+Updated: openscreen
+Updated: Trilium
+Updated: YesPlayMusic
+Updated: pear-desktop
+Updated: awesome-electron
+Updated: quasar
+Updated: PicGo
+Updated: SwitchHosts
+Updated: zulip
+Updated: responsively-app
+Updated: nylas-mail
+Updated: electron-react-boilerplate
+Updated: clash-party
+Updated: playwright
+Updated: AFFiNE
+Updated: electron
+Linox@Linox:~/openlib-crawler
+$ sudo npm install -g pm2
+[sudo] password for Linox:          
+
+added 90 packages in 9s
+
+8 packages are looking for funding
+  run `npm fund` for details
+Linox@Linox:~/openlib-crawler
+$ pm2 start crawler.js --name crawler
+
+                        -------------
+
+__/\\\\\\\\\\\\\____/\\\\____________/\\\\____/\\\\\\\\\_____
+ _\/\\\/////////\\\_\/\\\\\\________/\\\\\\__/\\\///////\\\___
+  _\/\\\_______\/\\\_\/\\\//\\\____/\\\//\\\_\///______\//\\\__
+   _\/\\\\\\\\\\\\\/__\/\\\\///\\\/\\\/_\/\\\___________/\\\/___
+    _\/\\\/////////____\/\\\__\///\\\/___\/\\\________/\\\//_____
+     _\/\\\_____________\/\\\____\///_____\/\\\_____/\\\//________
+      _\/\\\_____________\/\\\_____________\/\\\___/\\\/___________
+       _\/\\\_____________\/\\\_____________\/\\\__/\\\\\\\\\\\\\\\_
+        _\///______________\///______________\///__\///////////////__
+
+
+                          Runtime Edition
+
+        PM2 is a Production Process Manager for Node.js applications
+                     with a built-in Load Balancer.
+
+                Start and Daemonize any application:
+                $ pm2 start app.js
+
+                Load Balance 4 instances of api.js:
+                $ pm2 start api.js -i 4
+
+                Monitor in production:
+                $ pm2 monitor
+
+                Make pm2 auto-boot at server restart:
+                $ pm2 startup
+
+                To go further checkout:
+                http://pm2.io/
+
+
+                        -------------
+
+[PM2] Spawning PM2 daemon with pm2_home=/home/Linox/.pm2
+[PM2] PM2 Successfully daemonized
+[PM2] Starting /home/Linox/openlib-crawler/crawler.js in fork_mode (1 instance)
+[PM2] Done.
+┌────┬────────────────────┬──────────┬──────┬───────────┬──────────┬──────────┐
+│ id │ name               │ mode     │ ↺    │ status    │ cpu      │ memory   │
+├────┼────────────────────┼──────────┼──────┼───────────┼──────────┼──────────┤
+│ 0  │ crawler            │ fork     │ 0    │ online    │ 0%       │ 15.9mb   │
+└────┴────────────────────┴──────────┴──────┴───────────┴──────────┴──────────┘
+Linox@Linox:~/openlib-crawler
+$ pm2 start updater.js --name updater
+[PM2] Starting /home/Linox/openlib-crawler/updater.js in fork_mode (1 instance)
+[PM2] Done.
+┌────┬────────────────────┬──────────┬──────┬───────────┬──────────┬──────────┐
+│ id │ name               │ mode     │ ↺    │ status    │ cpu      │ memory   │
+├────┼────────────────────┼──────────┼──────┼───────────┼──────────┼──────────┤
+│ 0  │ crawler            │ fork     │ 2    │ online    │ 0%       │ 85.7mb   │
+│ 1  │ updater            │ fork     │ 0    │ online    │ 0%       │ 9.1mb    │
+└────┴────────────────────┴──────────┴──────┴───────────┴──────────┴──────────┘
+Linox@Linox:~/openlib-crawler
+$ pm2 list
+┌────┬────────────────────┬──────────┬──────┬───────────┬──────────┬──────────┐
+│ id │ name               │ mode     │ ↺    │ status    │ cpu      │ memory   │
+├────┼────────────────────┼──────────┼──────┼───────────┼──────────┼──────────┤
+│ 0  │ crawler            │ fork     │ 4    │ online    │ 0%       │ 85.5mb   │
+│ 1  │ updater            │ fork     │ 0    │ online    │ 0%       │ 73.7mb   │
+└────┴────────────────────┴──────────┴──────┴───────────┴──────────┴──────────┘
+Linox@Linox:~/openlib-crawler
+$ pm2 list
+┌────┬────────────────────┬──────────┬──────┬───────────┬──────────┬──────────┐
+│ id │ name               │ mode     │ ↺    │ status    │ cpu      │ memory   │
+├────┼────────────────────┼──────────┼──────┼───────────┼──────────┼──────────┤
+│ 0  │ crawler            │ fork     │ 12   │ online    │ 0%       │ 84.6mb   │
+│ 1  │ updater            │ fork     │ 1    │ online    │ 0%       │ 75.8mb   │
+└────┴────────────────────┴──────────┴──────┴───────────┴──────────┴──────────┘
+Linox@Linox:~/openlib-crawler
+$ pm2 save
+[PM2] Saving current process list...
+[PM2] Successfully saved in /home/Linox/.pm2/dump.pm2
+Linox@Linox:~/openlib-crawler
+$ pm2 startup
+[PM2] Init System found: systemd
+[PM2] To setup the Startup Script, copy/paste the following command:
+sudo env PATH=$PATH:/usr/bin /usr/local/lib/node_modules/pm2/bin/pm2 startup systemd -u Linox --hp /home/Linox
+Linox@Linox:~/openlib-crawler
+$ crontab -e
+no crontab for Linox - using an empty one
+Select an editor.  To change later, run select-editor again.
+  1. /bin/nano        <---- easiest
+  2. /usr/bin/mcedit
+  3. /usr/bin/vim.tiny
+  4. /usr/bin/code
+
+Choose 1-4 [1]: 1
+crontab: installing new crontab
+Linox@Linox:~/openlib-crawler
+$ crontab -l
+# Edit this file to introduce tasks to be run by cron.
+# 
+# Each task to run has to be defined through a single line
+# indicating with different fields when the task will be run
+# and what command to run for the task
+# 
+# To define the time you can provide concrete values for
+# minute (m), hour (h), day of month (dom), month (mon),
+# and day of week (dow) or use '*' in these fields (for 'any').
+# 
+# Notice that tasks will be started based on the cron's system
+# daemon's notion of time and timezones.
+# 
+# Output of the crontab jobs (including errors) is sent through
+# email to the user the crontab file belongs to (unless redirected).
+# 
+# For example, you can run a backup of all your user accounts
+# at 5 a.m every week with:
+# 0 5 * * 1 tar -zcf /var/backups/home.tgz /home/
+# 
+# For more information see the manual pages of crontab(5) and cron(8)
+# 
+# m h  dom mon dow   command
+0 */6 * * * cd /home/Linox/openlib-crawler && node crawler.js
+0 3 * * * cd /home/Linox/openlib-crawler && node updater.js
