@@ -22,6 +22,7 @@ Designed specifically for low-resource systems like MX Linux laptops, the crawle
 * Restartable worker-based processing
 * Optimized for low-end hardware
 * PM2 and cron support for automation
+* Rust terminal control panel for live operations
 
 ---
 
@@ -63,6 +64,7 @@ OpenLib data is updated only through authenticated sync workers.
 * Ollama
 * PM2
 * GitHub REST API
+* Rust + Ratatui + Crossterm control panel
 
 ---
 
@@ -71,6 +73,7 @@ OpenLib data is updated only through authenticated sync workers.
 ```text
 openlib-crawler/
 ├── docs/
+├── control-panel/
 ├── logs/
 ├── scripts/
 ├── src/
@@ -98,6 +101,25 @@ openlib-crawler/
 | `src/server.js`       | Moderation backend API                                    |
 | `docs/schema.sql`     | Reference database schema                                 |
 | `ecosystem.config.js` | PM2 process configuration                                 |
+| `control-panel/`      | Rust Ratatui terminal dashboard and worker control center  |
+
+---
+
+# OpenLib Control Panel
+
+The modern operator UX lives in `control-panel/`. It provides a full-screen Rust TUI with sidebar navigation, dashboard metrics, worker controls, queue views, SQLite statistics, Ollama monitoring, GitHub API usage, system telemetry, log streaming, scheduler controls, repository moderation, and safe `.env` editing.
+
+```bash
+cargo run --manifest-path control-panel/Cargo.toml
+```
+
+Or from the existing Node workflow:
+
+```bash
+npm run control
+```
+
+The control panel is Linux-first and optimized for low-end systems. It reads the existing `openlib.db`, `.env`, and `logs/` assets, so it can be introduced without migrating crawler data.
 
 ---
 

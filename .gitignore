@@ -47,3 +47,5 @@ Thumbs.db
 coverage/
 dist/
 build/
+target/
+control-panel/target/

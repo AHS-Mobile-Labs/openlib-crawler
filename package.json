@@ -10,6 +10,7 @@
     "ai": "node src/cli.js ai",
     "screenshots": "node src/cli.js screenshots",
     "sync": "node src/cli.js sync",
+    "control": "bin/openlib-control-panel",
     "scheduler": "node src/cli.js scheduler",
     "moderation": "node src/server.js",
     "ollama:start": "node scripts/start-ollama.js",
