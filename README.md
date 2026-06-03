@@ -22,7 +22,7 @@ Designed specifically for low-resource systems like MX Linux laptops, the crawle
 * Restartable worker-based processing
 * Optimized for low-end hardware
 * PM2 and cron support for automation
-* Rust terminal control panel for live operations
+* Browser GUI for live operations, data files, logs, queues, and moderation
 
 ---
 
@@ -64,7 +64,7 @@ OpenLib data is updated only through authenticated sync workers.
 * Ollama
 * PM2
 * GitHub REST API
-* Rust + Ratatui + Crossterm control panel
+* Browser GUI served by the Node.js control server
 
 ---
 
@@ -73,10 +73,11 @@ OpenLib data is updated only through authenticated sync workers.
 ```text
 openlib-crawler/
 ├── docs/
-├── control-panel/
+├── bin/
 ├── logs/
 ├── scripts/
 ├── src/
+│   ├── gui/
 │   ├── services/
 │   ├── workers/
 │   ├── config.js
@@ -96,30 +97,31 @@ openlib-crawler/
 | --------------------- | --------------------------------------------------------- |
 | `src/config.js`       | Loads environment configuration                           |
 | `src/db.js`           | Initializes SQLite database and WAL mode                  |
+| `src/gui/public/`     | Browser GUI assets                                        |
 | `src/services/`       | Core services for crawling, AI, parsing, scoring, syncing |
 | `src/workers/`        | One-shot worker jobs                                      |
-| `src/server.js`       | Moderation backend API                                    |
+| `src/server.js`       | Browser GUI, moderation API, job controls, data API       |
 | `docs/schema.sql`     | Reference database schema                                 |
 | `ecosystem.config.js` | PM2 process configuration                                 |
-| `control-panel/`      | Rust Ratatui terminal dashboard and worker control center  |
+| `bin/openlib-control-panel` | Launches the local GUI server                       |
 
 ---
 
-# OpenLib Control Panel
+# OpenLib Control GUI
 
-The modern operator UX lives in `control-panel/`. It provides a full-screen Rust TUI with sidebar navigation, dashboard metrics, worker controls, queue views, SQLite statistics, Ollama monitoring, GitHub API usage, system telemetry, log streaming, scheduler controls, repository moderation, and safe `.env` editing.
-
-```bash
-cargo run --manifest-path control-panel/Cargo.toml
-```
-
-Or from the existing Node workflow:
+The operator UX is now a browser GUI served by `src/server.js`. It provides dashboard metrics, worker controls, queue views, SQLite statistics, Ollama monitoring, GitHub API usage, system telemetry, log streaming, scheduler controls, repository moderation, data file downloads, app export, and `.env` editing.
 
 ```bash
 npm run control
 ```
 
-The control panel is Linux-first and optimized for low-end systems. It reads the existing `openlib.db`, `.env`, and `logs/` assets, so it can be introduced without migrating crawler data.
+Then open:
+
+```bash
+http://127.0.0.1:3020
+```
+
+The GUI reads the existing `openlib.db`, `.env`, `data/`, and `logs/` assets, so crawler data does not need migration. If `MODERATION_API_KEY` is set, enter it in the GUI API key field.
 
 ---
 
@@ -211,10 +213,10 @@ npm run screenshots
 npm run sync
 ```
 
-## Start Moderation API
+## Start Control GUI And Moderation API
 
 ```bash
-npm run moderation
+npm run control
 ```
 
 ---

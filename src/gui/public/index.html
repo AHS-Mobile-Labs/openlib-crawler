@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OpenLib Crawler</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <img src="/assets/openlib-crawler-logo-removebg.png" alt="OpenLib Crawler">
+          <div>
+            <strong>OpenLib Crawler</strong>
+            <span>Control GUI</span>
+          </div>
+        </div>
+        <nav class="nav" aria-label="Main">
+          <button class="active" data-view="dashboard">Dashboard</button>
+          <button data-view="workers">Workers</button>
+          <button data-view="apps">Apps</button>
+          <button data-view="queues">Queues</button>
+          <button data-view="data">Data</button>
+          <button data-view="system">System</button>
+        </nav>
+        <div class="api-box">
+          <label for="api-key">API key</label>
+          <input id="api-key" type="password" autocomplete="off">
+          <button data-save-api-key>Save</button>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow" id="view-kicker">Local operations</p>
+            <h1 id="view-title">Dashboard</h1>
+          </div>
+          <div class="top-actions">
+            <span id="connection-status" class="pill neutral">Idle</span>
+            <button class="secondary" data-refresh>Refresh</button>
+          </div>
+        </header>
+        <section id="app-root" class="content" aria-live="polite"></section>
+      </main>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
