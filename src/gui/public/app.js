@@ -26,6 +26,12 @@ const titles = {
   system: ["System", "Telemetry"]
 };
 
+const CATEGORY_OPTIONS = ["Communication", "Design", "Finance", "Media", "Productivity", "Security", "Utility", "Other"];
+const LICENSE_OPTIONS = ["MIT", "GPL-3.0", "GPL-2.0", "Apache-2.0", "BSD-2-Clause", "BSD-3-Clause", "LGPL-3.0", "MPL-2.0", "AGPL-3.0", "Unlicense", "Other"];
+const VISIBILITY_OPTIONS = ["public", "private"];
+const MAINTAINER_OPTIONS = ["Individual", "Organization"];
+const STATUS_OPTIONS = ["pending", "all", "approved", "published", "rejected", "dead", "discovered"];
+
 const root = document.getElementById("app-root");
 const apiKeyInput = document.getElementById("api-key");
 apiKeyInput.value = state.apiKey;
@@ -221,6 +227,10 @@ function renderDashboard() {
         ${metric("Sync queue", queueTotal(data.queues.sync))}
       </div>
     </div>
+    <div class="section grid two">
+      ${miniBreakdown("Top Categories", data.apps.top_categories || [], "category")}
+      ${miniBreakdown("Quality Bands", data.apps.quality_buckets || [], "bucket")}
+    </div>
     <div class="section">
       <div class="section-head">
         <h2>Status</h2>
@@ -258,6 +268,30 @@ function renderDashboard() {
         <button class="secondary" data-view="data">Logs</button>
       </div>
       ${renderLogRows(data.recent_logs)}
+    </div>
+  `;
+}
+
+function miniBreakdown(title, rows, labelKey) {
+  const total = rows.reduce((sum, row) => sum + Number(row.count || 0), 0) || 1;
+  return `
+    <div class="card">
+      <div class="section-head compact">
+        <h2>${escapeHtml(title)}</h2>
+        <span class="muted">${fmtNumber(total)} apps</span>
+      </div>
+      <div class="bars">
+        ${rows.map((row) => {
+          const width = Math.max(4, Math.round((Number(row.count || 0) / total) * 100));
+          return `
+            <div class="bar-row">
+              <span>${escapeHtml(row[labelKey] || "-")}</span>
+              <div class="bar"><i style="width:${width}%"></i></div>
+              <strong>${fmtNumber(row.count)}</strong>
+            </div>
+          `;
+        }).join("") || '<div class="empty">No data</div>'}
+      </div>
     </div>
   `;
 }
@@ -364,8 +398,8 @@ function renderApps() {
   return `
     <div class="section">
       <div class="toolbar">
-        <select id="app-status">
-          ${["pending", "all", "approved", "published", "rejected", "dead", "discovered"].map((status) => `
+        <select id="app-status" title="Status">
+          ${STATUS_OPTIONS.map((status) => `
             <option value="${status}" ${state.appFilter === status ? "selected" : ""}>${status}</option>
           `).join("")}
         </select>
@@ -415,6 +449,11 @@ function renderAppDetail() {
   if (!app) return '<div class="empty">No app selected</div>';
   const tags = Array.isArray(app.tags) ? app.tags.join(", ") : "";
   const features = Array.isArray(app.key_features) ? app.key_features.join("\n") : "";
+  const alternativeOf = Array.isArray(app.alternative_of) ? app.alternative_of.join(", ") : "";
+  const platforms = Array.isArray(app.supported_platforms) ? app.supported_platforms.join("\n") : "";
+  const install = Array.isArray(app.installation_methods) ? app.installation_methods.join("\n") : "";
+  const requirements = Array.isArray(app.system_requirements) ? app.system_requirements.join("\n") : "";
+  const comparison = JSON.stringify(app.comparison_table || [], null, 2);
 
   return `
     <form class="card" id="app-form">
@@ -432,20 +471,32 @@ function renderAppDetail() {
       <div class="form-grid">
         ${inputField("name", "Name", app.name)}
         ${inputField("slug", "Slug", app.slug)}
-        ${inputField("category", "Category", app.category)}
-        ${inputField("license", "License", app.license)}
+        ${selectField("category", "Category", app.category, CATEGORY_OPTIONS)}
+        ${selectField("license", "License", app.license, LICENSE_OPTIONS)}
         ${inputField("quality_score", "Quality", app.quality_score, "number")}
-        ${inputField("visibility", "Visibility", app.visibility)}
+        ${selectField("visibility", "Visibility", app.visibility, VISIBILITY_OPTIONS)}
+        ${selectField("maintainer_type", "Maintainer", app.maintainer_type, MAINTAINER_OPTIONS)}
+        ${inputField("developer_name", "Developer", app.developer_name)}
+        ${inputField("developer_url", "Developer URL", app.developer_url)}
+        ${inputField("version", "Version", app.version)}
+        ${inputField("file_size", "File size", app.file_size, "number")}
         ${inputField("website_url", "Website", app.website_url)}
         ${inputField("download_url", "Download", app.download_url)}
+        ${inputField("source_url", "Source", app.source_url)}
         ${inputField("docs_url", "Docs", app.docs_url)}
+        ${inputField("youtube_url", "YouTube", app.youtube_url)}
         ${inputField("readme_raw_url", "README Raw", app.readme_raw_url)}
         ${inputField("logo_url", "Logo", app.logo_url)}
         ${textareaField("short_description", "Short description", app.short_description, true)}
         ${textareaField("full_description", "Full description", app.full_description, true)}
         ${textareaField("uses", "Uses", app.uses, true)}
+        ${textareaField("alternative_of", "Alternative of", alternativeOf, true)}
         ${textareaField("tags", "Tags", tags, true)}
         ${textareaField("key_features", "Key features", features, true)}
+        ${textareaField("supported_platforms", "Supported platforms", platforms, true)}
+        ${textareaField("installation_methods", "Installation methods", install, true)}
+        ${textareaField("system_requirements", "System requirements", requirements, true)}
+        ${textareaField("comparison_table", "Comparison table JSON", comparison, true, "codefield")}
       </div>
       <div class="section">
         <h3>Screenshots</h3>
@@ -474,11 +525,23 @@ function inputField(name, label, value, type = "text") {
   `;
 }
 
-function textareaField(name, label, value, wide = false) {
+function selectField(name, label, value, options) {
+  const current = String(value ?? "");
+  return `
+    <div class="field">
+      <label for="field-${name}">${escapeHtml(label)}</label>
+      <select id="field-${name}" name="${escapeHtml(name)}">
+        ${options.map((option) => `<option value="${escapeHtml(option)}" ${option === current ? "selected" : ""}>${escapeHtml(option)}</option>`).join("")}
+      </select>
+    </div>
+  `;
+}
+
+function textareaField(name, label, value, wide = false, extraClass = "") {
   return `
     <div class="field ${wide ? "wide" : ""}">
       <label for="field-${name}">${escapeHtml(label)}</label>
-      <textarea id="field-${name}" name="${escapeHtml(name)}">${escapeHtml(value ?? "")}</textarea>
+      <textarea id="field-${name}" class="${escapeHtml(extraClass)}" name="${escapeHtml(name)}">${escapeHtml(value ?? "")}</textarea>
     </div>
   `;
 }
@@ -501,8 +564,18 @@ function formToAppPayload(form) {
   const payload = {};
   for (const [key, value] of data.entries()) payload[key] = value;
   payload.quality_score = Number(payload.quality_score || 0);
+  payload.file_size = Number(payload.file_size || 0);
   payload.tags = parseListField(payload.tags);
   payload.key_features = parseListField(payload.key_features);
+  payload.alternative_of = parseListField(payload.alternative_of);
+  payload.supported_platforms = parseListField(payload.supported_platforms);
+  payload.installation_methods = parseListField(payload.installation_methods);
+  payload.system_requirements = parseListField(payload.system_requirements);
+  try {
+    payload.comparison_table = JSON.parse(payload.comparison_table || "[]");
+  } catch (err) {
+    payload.comparison_table = [];
+  }
   return payload;
 }
 

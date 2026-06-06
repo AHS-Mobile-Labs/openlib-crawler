@@ -47,6 +47,7 @@ const editableFields = new Set([
   "full_description",
   "uses",
   "alternative_of",
+  "source_url",
   "download_url",
   "website_url",
   "docs_url",
@@ -500,13 +501,36 @@ async function dashboard() {
   const recentLogs = await db.all(
     "SELECT * FROM crawl_logs ORDER BY created_at DESC LIMIT 12"
   );
+  const topCategories = await db.all(
+    `SELECT COALESCE(NULLIF(category, ''), 'Uncategorized') AS category, COUNT(*) AS count
+       FROM apps
+      GROUP BY COALESCE(NULLIF(category, ''), 'Uncategorized')
+      ORDER BY count DESC
+      LIMIT 8`
+  );
+  const qualityBuckets = await db.all(
+    `SELECT
+       CASE
+         WHEN quality_score >= 80 THEN '80-100'
+         WHEN quality_score >= 60 THEN '60-79'
+         WHEN quality_score >= 40 THEN '40-59'
+         WHEN quality_score >= 20 THEN '20-39'
+         ELSE '0-19'
+       END AS bucket,
+       COUNT(*) AS count
+       FROM apps
+      GROUP BY bucket
+      ORDER BY MIN(quality_score) DESC`
+  );
 
   return {
     apps: {
       total: appSummary?.total || 0,
       average_quality: Math.round(Number(appSummary?.average_quality || 0)),
       last_updated: appSummary?.last_updated || null,
-      by_status: await countByStatus("apps")
+      by_status: await countByStatus("apps"),
+      top_categories: topCategories,
+      quality_buckets: qualityBuckets
     },
     queues: {
       sync: await countByStatus("sync_queue"),
