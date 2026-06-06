@@ -109,10 +109,11 @@ class CrawlerWorker {
         return "rejected";
       }
 
-      const [readme, latestRelease] = await Promise.all([
-        this.client.getReadme(parts.owner, parts.name),
+      const [readmeDetails, latestRelease] = await Promise.all([
+        this.client.getReadmeDetails(parts.owner, parts.name),
         this.client.getLatestRelease(parts.owner, parts.name)
       ]);
+      const readme = readmeDetails.markdown || "";
 
       const parsedReadme = {
         ...parseReadme(readme, {
@@ -122,7 +123,9 @@ class CrawlerWorker {
           language: repo.language,
           topics: repo.topics || []
         }),
-        markdown: readme
+        markdown: readme,
+        readmeRawUrl: readmeDetails.rawUrl || "",
+        readmeHtmlUrl: readmeDetails.htmlUrl || ""
       };
 
       const app = mapRepositoryToApp(repo, parsedReadme, latestRelease);

@@ -92,13 +92,32 @@ class GitHubClient {
   }
 
   async getReadme(owner, repo) {
+    const details = await this.getReadmeDetails(owner, repo);
+    return details.markdown;
+  }
+
+  async getReadmeDetails(owner, repo) {
     try {
-      return await this.request("GET", `/repos/${owner}/${repo}/readme`, {
-        headers: { Accept: "application/vnd.github.raw" },
-        retries: 2
-      });
+      const data = await this.request("GET", `/repos/${owner}/${repo}/readme`, { retries: 2 });
+      const content = String(data.content || "").replace(/\s+/g, "");
+      const markdown = content
+        ? Buffer.from(content, data.encoding === "base64" || !data.encoding ? "base64" : data.encoding).toString("utf8")
+        : "";
+      return {
+        markdown,
+        rawUrl: data.download_url || "",
+        htmlUrl: data.html_url || "",
+        path: data.path || ""
+      };
     } catch (err) {
-      if (err.response?.status === 404) return "";
+      if (err.response?.status === 404) {
+        return {
+          markdown: "",
+          rawUrl: "",
+          htmlUrl: "",
+          path: ""
+        };
+      }
       throw err;
     }
   }

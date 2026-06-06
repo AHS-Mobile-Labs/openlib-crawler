@@ -17,15 +17,27 @@ async function main() {
 # Demo App
 
 ![Screenshot](docs/screenshot.png)
+![Logo](docs/logo.png)
 
 ## Features
 - Fast local search
 - Linux desktop support
 
+An open-source alternative to Example Cloud.
+
 ## Installation
 \`\`\`bash
 npm install
 \`\`\`
+
+## System Requirements
+- RAM: 2 GB minimum
+- Storage: 200 MB
+
+## Comparison
+| Feature | Demo App | Example Cloud |
+| --- | --- | --- |
+| Offline mode | ✔ | ✖ |
 
 [Docs](https://example.com/docs)
 `;
@@ -38,8 +50,13 @@ npm install
   });
 
   assert(parsed.screenshots.length === 1, "README screenshot extraction failed");
+  assert(parsed.logoUrls.length === 1, "README logo extraction failed");
   assert(parsed.features.length === 2, "README feature extraction failed");
   assert(parsed.installationMethods.length === 1, "README installation extraction failed");
+  assert(parsed.installationMethods[0].startsWith("npm |"), "README installation label formatting failed");
+  assert(parsed.alternativeOf[0] === "Example Cloud", "README alternative extraction failed");
+  assert(parsed.systemRequirements.length === 2, "README requirements extraction failed");
+  assert(parsed.comparisonTable.length === 1, "README comparison table extraction failed");
 
   const app = mapRepositoryToApp(
     {
@@ -67,6 +84,11 @@ npm install
   );
 
   const score = calculateQualityScore(app, parsed);
+  assert(app.category === "Utility", "category normalization failed");
+  assert(app.license === "MIT", "license normalization failed");
+  assert(app.maintainer_type === "Organization", "maintainer type normalization failed");
+  assert(app.logo_url.includes("/docs/logo.png"), "logo mapping failed");
+  assert(app.readme_raw_url.endsWith("/openlib/demo/main/README.md"), "README raw URL fallback failed");
   assert(score > 50, "quality score unexpectedly low");
 
   await db.close();

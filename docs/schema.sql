@@ -64,6 +64,7 @@ CREATE TABLE IF NOT EXISTS apps (
   latest_release_at TEXT,
   last_commit_at TEXT,
   pushed_at TEXT,
+  readme_raw_url TEXT,
   readme_markdown TEXT,
   readme_text TEXT,
   readme_quality_score INTEGER DEFAULT 0,

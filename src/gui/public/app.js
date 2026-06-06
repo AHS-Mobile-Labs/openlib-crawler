@@ -430,6 +430,7 @@ function renderAppDetail() {
         ${inputField("website_url", "Website", app.website_url)}
         ${inputField("download_url", "Download", app.download_url)}
         ${inputField("docs_url", "Docs", app.docs_url)}
+        ${inputField("readme_raw_url", "README Raw", app.readme_raw_url)}
         ${inputField("logo_url", "Logo", app.logo_url)}
         ${textareaField("short_description", "Short description", app.short_description, true)}
         ${textareaField("full_description", "Full description", app.full_description, true)}

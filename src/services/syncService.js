@@ -4,6 +4,7 @@ const logger = require("../logger");
 const { nowIso } = require("../utils/time");
 const { parseJson, stringifyJson } = require("../utils/json");
 const { listAppScreenshots } = require("./appStore");
+const { normalizeCategory, normalizeLicense, normalizeMaintainerType } = require("./formOptions");
 
 function appToPayload(app, screenshots = []) {
   return {
@@ -21,7 +22,7 @@ function appToPayload(app, screenshots = []) {
     },
     name: app.name,
     slug: app.slug,
-    category: app.category,
+    category: normalizeCategory(app.category),
     logo: app.logo_url || app.logo,
     short_description: app.short_description,
     full_description: app.full_description,
@@ -31,11 +32,12 @@ function appToPayload(app, screenshots = []) {
     website_url: app.website_url || app.website,
     docs_url: app.docs_url,
     youtube_url: app.youtube_url,
-    maintainer_type: app.maintainer_type,
+    readme_raw_url: app.readme_raw_url,
+    maintainer_type: normalizeMaintainerType(app.maintainer_type),
     developer_name: app.developer_name,
     developer_url: app.developer_url,
     version: app.version,
-    license: app.license,
+    license: normalizeLicense(app.license),
     file_size: app.file_size,
     tags: parseJson(app.tags, []),
     key_features: parseJson(app.key_features, []),
@@ -50,8 +52,8 @@ function appToPayload(app, screenshots = []) {
     installation_methods: parseJson(app.installation_methods, []),
     system_requirements: parseJson(app.system_requirements, []),
     open_source_verified: Boolean(app.open_source_verified),
-    visibility: app.visibility,
-    added_by: app.added_by,
+    visibility: app.visibility || "public",
+    added_by: app.added_by || "OpenLib (Official)",
     quality_score: app.quality_score,
     status: app.status,
     last_updated: app.updated_at

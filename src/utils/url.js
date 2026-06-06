@@ -22,6 +22,22 @@ function isHttpUrl(value) {
   }
 }
 
+function toRawGithubUrl(value) {
+  if (!isHttpUrl(value)) return value;
+
+  try {
+    const parsed = new URL(value);
+    const parts = parsed.pathname.split("/").filter(Boolean);
+    if (parsed.hostname === "github.com" && parts.length >= 5 && ["blob", "raw"].includes(parts[2])) {
+      return `https://raw.githubusercontent.com/${parts[0]}/${parts[1]}/${parts.slice(3).join("/")}`;
+    }
+  } catch (_err) {
+    return value;
+  }
+
+  return value;
+}
+
 function absoluteFromGithub(rawUrl, repo) {
   if (!rawUrl) return "";
   if (isHttpUrl(rawUrl)) return rawUrl;
@@ -46,6 +62,7 @@ function safeFileNameFromUrl(url, fallback = "image") {
 module.exports = {
   normalizeUrl,
   isHttpUrl,
+  toRawGithubUrl,
   absoluteFromGithub,
   safeFileNameFromUrl
 };

@@ -21,6 +21,7 @@ const {
   enqueueUpdateJob,
   listAppScreenshots
 } = require("./services/appStore");
+const { normalizeCategory, normalizeLicense, normalizeMaintainerType } = require("./services/formOptions");
 
 const publicDir = path.resolve(__dirname, "gui/public");
 const envPath = path.resolve(config.rootDir, ".env");
@@ -50,6 +51,7 @@ const editableFields = new Set([
   "website_url",
   "docs_url",
   "youtube_url",
+  "readme_raw_url",
   "maintainer_type",
   "developer_name",
   "developer_url",
@@ -297,7 +299,10 @@ function normalizeEdit(body) {
   const fields = {};
   for (const [key, value] of Object.entries(body || {})) {
     if (!editableFields.has(key)) continue;
-    fields[key] = jsonFields.has(key) ? stringifyJson(value) : value;
+    if (key === "category") fields[key] = normalizeCategory(value);
+    else if (key === "license") fields[key] = normalizeLicense(value);
+    else if (key === "maintainer_type") fields[key] = normalizeMaintainerType(value);
+    else fields[key] = jsonFields.has(key) ? stringifyJson(value) : value;
   }
   return fields;
 }
@@ -710,7 +715,7 @@ function csvValue(value) {
 async function exportApps(res, format) {
   const rows = await db.all(
     `SELECT id, name, slug, category, status, visibility, quality_score, stars, license,
-            github_full_name, github_url, website_url, updated_at
+            github_full_name, github_url, website_url, readme_raw_url, updated_at
        FROM apps
       ORDER BY updated_at DESC, id DESC
       LIMIT 10000`
@@ -730,6 +735,7 @@ async function exportApps(res, format) {
       github_full_name: "",
       github_url: "",
       website_url: "",
+      readme_raw_url: "",
       updated_at: ""
     });
     const lines = [columns.join(",")];

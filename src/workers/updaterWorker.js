@@ -110,10 +110,11 @@ class UpdaterWorker {
       return "dead";
     }
 
-    const [readme, latestRelease] = await Promise.all([
-      this.client.getReadme(owner, repoName),
+    const [readmeDetails, latestRelease] = await Promise.all([
+      this.client.getReadmeDetails(owner, repoName),
       this.client.getLatestRelease(owner, repoName)
     ]);
+    const readme = readmeDetails.markdown || "";
 
     const parsedReadme = {
       ...parseReadme(readme, {
@@ -123,7 +124,9 @@ class UpdaterWorker {
         language: repo.language,
         topics: repo.topics || []
       }),
-      markdown: readme
+      markdown: readme,
+      readmeRawUrl: readmeDetails.rawUrl || "",
+      readmeHtmlUrl: readmeDetails.htmlUrl || ""
     };
 
     const mapped = mapRepositoryToApp(repo, parsedReadme, latestRelease);

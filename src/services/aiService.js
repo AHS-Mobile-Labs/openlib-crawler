@@ -6,6 +6,7 @@ const { nowIso } = require("../utils/time");
 const { stringifyJson, parseJson, uniqueArray } = require("../utils/json");
 const { cleanText } = require("../utils/text");
 const { detectCategory } = require("./repositoryMapper");
+const { FORM_CATEGORIES, normalizeCategory } = require("./formOptions");
 
 function inputHash(app) {
   return crypto
@@ -37,17 +38,17 @@ function fallbackEnrichment(app) {
   const description = cleanText(app.short_description || app.full_description || app.readme_text || "", 180);
 
   return {
-    category: app.category || detectCategory({ topics, language: app.language, description: app.short_description }, {}),
+    category: normalizeCategory(app.category || detectCategory({ topics, language: app.language, description: app.short_description }, {})),
     short_description: description,
     full_description: cleanText(app.full_description || app.readme_text || description, 1800),
     uses: cleanText(`Helps users solve ${description || app.name}.`, 300),
-    alternative_of: [],
+    alternative_of: parseJson(app.alternative_of, []),
     tags,
     key_features: keyFeatures.slice(0, 8),
-    comparison_table: [],
+    comparison_table: parseJson(app.comparison_table, []),
     supported_platforms: platforms,
     installation_methods: parseJson(app.installation_methods, []),
-    system_requirements: []
+    system_requirements: parseJson(app.system_requirements, [])
   };
 }
 
@@ -62,9 +63,12 @@ function buildPrompt(app) {
   };
 
   return `Return compact JSON only for this open-source app.
-Keys: category, short_description, full_description, uses, alternative_of, tags, key_features.
+Keys: category, short_description, full_description, uses, alternative_of, tags, key_features, comparison_table, supported_platforms, installation_methods, system_requirements.
+Category must be one of: ${FORM_CATEGORIES.join(", ")}.
+installation_methods items must be "label | command or URL".
+comparison_table must be an array of row objects, or [] when unknown.
 Limits: short_description <140 chars, full_description <350 chars, uses <220 chars, tags <=8, key_features <=5.
-Use only facts from input. Input: ${JSON.stringify(payload)}`;
+Use only facts from input; use [] for unknown optional arrays. Input: ${JSON.stringify(payload)}`;
 }
 
 async function callOllama(prompt) {
@@ -99,7 +103,7 @@ function normalizeEnrichment(app, data) {
   const aiFullDescription = source.full_description || source.long_description || source.description || fallback.full_description;
 
   return {
-    category: cleanText(source.category || fallback.category, 80),
+    category: normalizeCategory(source.category || fallback.category),
     short_description: cleanText(aiDescription, 180),
     full_description: cleanText(aiFullDescription, 1800),
     uses: cleanText(source.uses || fallback.uses, 350),

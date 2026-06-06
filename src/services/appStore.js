@@ -62,6 +62,7 @@ const mutableAppFields = [
   "latest_release_at",
   "last_commit_at",
   "pushed_at",
+  "readme_raw_url",
   "readme_markdown",
   "readme_text",
   "readme_quality_score",
