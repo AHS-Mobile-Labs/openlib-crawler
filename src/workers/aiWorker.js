@@ -30,16 +30,31 @@ class AiWorker {
   async run(options = {}) {
     await initializeDatabase(this.db);
     const limit = options.limit || 25;
-    await this.queueMissing(limit);
+    const appId = Number(options.appId || options.app_id || 0);
 
-    const jobs = await this.db.all(
-      `SELECT * FROM ai_jobs
-        WHERE status IN ('pending', 'failed')
-          AND (next_attempt_at IS NULL OR next_attempt_at <= ?)
-        ORDER BY created_at ASC
-        LIMIT ?`,
-      [nowIso(), limit]
-    );
+    if (appId) {
+      await enqueueAiJob(this.db, appId, "enrich", config.ai.model);
+    } else {
+      await this.queueMissing(limit);
+    }
+
+    const jobs = appId
+      ? await this.db.all(
+          `SELECT * FROM ai_jobs
+            WHERE app_id = ?
+              AND status IN ('pending', 'failed')
+            ORDER BY created_at ASC
+            LIMIT ?`,
+          [appId, limit]
+        )
+      : await this.db.all(
+          `SELECT * FROM ai_jobs
+            WHERE status IN ('pending', 'failed')
+              AND (next_attempt_at IS NULL OR next_attempt_at <= ?)
+            ORDER BY created_at ASC
+            LIMIT ?`,
+          [nowIso(), limit]
+        );
 
     let completed = 0;
     let failed = 0;

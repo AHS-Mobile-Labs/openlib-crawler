@@ -206,10 +206,18 @@ function renderDashboard() {
 
   return `
     <div class="section">
+      <div class="section-head">
+        <h2>Quick Actions</h2>
+        <div class="actions">
+          <button data-run-ai-now>Run AI</button>
+          <button class="secondary" data-view="queues">AI queue</button>
+        </div>
+      </div>
       <div class="grid">
         ${metric("Apps", data.apps.total)}
         ${metric("Avg quality", data.apps.average_quality)}
         ${metric("Screenshots", data.tables.screenshots)}
+        ${metric("AI queue", queueTotal(data.queues.ai))}
         ${metric("Sync queue", queueTotal(data.queues.sync))}
       </div>
     </div>
@@ -333,12 +341,13 @@ function renderJobsTable(jobs) {
   return `
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Worker</th><th>Status</th><th>Limit</th><th>Started</th><th>Duration</th><th>Result</th></tr></thead>
+        <thead><tr><th>Worker</th><th>Status</th><th>App</th><th>Limit</th><th>Started</th><th>Duration</th><th>Result</th></tr></thead>
         <tbody>
           ${jobs.map((job) => `
             <tr>
               <td>${escapeHtml(job.label || job.name)}</td>
               <td><span class="status ${statusClass(job.status)}">${escapeHtml(job.status)}</span></td>
+              <td>${job.app_id ? fmtNumber(job.app_id) : "-"}</td>
               <td>${fmtNumber(job.limit)}</td>
               <td>${escapeHtml(fmtDate(job.started_at))}</td>
               <td>${job.duration_ms ? `${Math.round(job.duration_ms / 1000)}s` : "-"}</td>
@@ -447,6 +456,7 @@ function renderAppDetail() {
       <div class="actions">
         <button type="submit">Save</button>
         <button type="button" class="secondary" data-queue-app="ai">Queue AI</button>
+        <button type="button" data-run-app-ai>Run AI now</button>
         <button type="button" class="secondary" data-queue-app="update">Queue update</button>
         <button type="button" class="secondary" data-queue-app="sync">Queue sync</button>
       </div>
@@ -689,6 +699,13 @@ document.addEventListener("click", async (event) => {
     return;
   }
 
+  if (event.target.closest("[data-run-ai-now]")) {
+    setStatus("Starting AI", "info");
+    await api("/api/jobs/ai/start", { method: "POST", body: {} });
+    await loadView();
+    return;
+  }
+
   const scheduler = event.target.closest("[data-scheduler]");
   if (scheduler) {
     const action = scheduler.dataset.scheduler;
@@ -732,6 +749,20 @@ document.addEventListener("click", async (event) => {
   const queueButton = event.target.closest("[data-queue-app]");
   if (queueButton && state.selectedApp) {
     await api(`/api/apps/${state.selectedApp.id}/queue/${queueButton.dataset.queueApp}`, { method: "POST" });
+    await loadView();
+    return;
+  }
+
+  if (event.target.closest("[data-run-app-ai]") && state.selectedApp) {
+    setStatus(`Starting AI for ${state.selectedApp.name || state.selectedApp.id}`, "info");
+    await api(`/api/apps/${state.selectedApp.id}/queue/ai`, { method: "POST" });
+    await api("/api/jobs/ai/start", {
+      method: "POST",
+      body: {
+        limit: 1,
+        app_id: state.selectedApp.id
+      }
+    });
     await loadView();
     return;
   }

@@ -402,12 +402,14 @@ function startWorkerJob(name, options = {}) {
   }
 
   const limit = safeLimit(options.limit, registry.defaultLimit(), 1000);
+  const appId = name === "ai" ? Number(options.app_id || options.appId || 0) : 0;
   const job = {
     id: crypto.randomUUID(),
     name,
     label: registry.label,
     status: "running",
     limit,
+    app_id: appId || null,
     started_at: new Date().toISOString(),
     finished_at: null,
     duration_ms: null,
@@ -422,7 +424,7 @@ function startWorkerJob(name, options = {}) {
   const startedAt = Date.now();
   job.promise = (async () => {
     const worker = new registry.Worker();
-    return worker.run({ limit });
+    return worker.run({ limit, appId });
   })()
     .then((result) => {
       job.status = "completed";
