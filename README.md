@@ -1,3 +1,9 @@
+> [!NOTE]
+> **This project is archived.**
+> OpenLib has shifted its focus toward showcasing high-quality, verified applications — curated by the community and admins, not automated bots. Going forward, only community-submitted and admin-approved apps will be listed on OpenLib. As a result, this crawler is no longer in active use or development.
+> 
+> The repository is preserved here for reference and for anyone who may find the architecture or approach useful for their own projects.
+
 <div align="center">
   <img src="assets/openlib-crawler-logo-removebg.png" alt="OpenLib Crawler" width="200" />
 </div>
